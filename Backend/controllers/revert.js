@@ -8,7 +8,6 @@ const copyFile = promisify(fs.copyFile);
 export default async function (commitId) {
   const repoPath = path.resolve(process.cwd(), ".codeDock");
   const commitsPath = path.join(repoPath, "commits");
-
   try {
     const commitDir = path.join(commitsPath, commitId);
     const files = await readdir(commitDir);
