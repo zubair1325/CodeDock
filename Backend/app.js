@@ -4,9 +4,11 @@ import mongoose from "mongoose";
 import cors from "cors";
 import http from "http";
 import bodyParser from "body-parser";
+import { Server } from "socket.io";
 
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+
 import ExpressError from "./utils/ExpressError.js";
 import initRepo from "./controllers/init.js";
 import addRepo from "./controllers/add.js";
@@ -15,8 +17,8 @@ import pushRepo from "./controllers/push.js";
 import pullRepo from "./controllers/pull.js";
 import revertRepo from "./controllers/revert.js";
 
-app.use(express.json({ limit: "40kb" }));
-app.use(express.urlencoded({ limit: "40kb", extended: true }));
+import { mainRouter } from "./routes/main.router.js";
+
 
 yargs(hideBin(process.argv))
   .command("start", "Starts a new Server", {}, startServer)
@@ -67,7 +69,7 @@ yargs(hideBin(process.argv))
 
 function startServer() {
   const app = express();
-  const port = process.evn.PORT || 3000;
+  const port = process.env.PORT || 3000;
 
   app.use(bodyParser.json());
   app.use(express.json());
@@ -81,6 +83,8 @@ function startServer() {
     await mongoose.connect(process.env.MONGODB_URL);
   }
 
+  app.use(cors({ origin: "*" }));
+  app.use("/", mainRouter);
   app.all("/", (req, res, next) => {
     next(new ExpressError("Page Not Found!", 404));
   });
@@ -89,7 +93,29 @@ function startServer() {
     let { message = "Something went wrong:(", statusCode = 500 } = error;
     res.status(statusCode).json(message);
   });
-  app.listen(port, () => {
-    console.log("server online on port ", port);
+  let user = "test";
+  const httpServer = http.createServer(app);
+  const io = new Server(httpServer, {
+    cors: {
+      origin: "*",
+      method: ["GET", "POST"],
+    },
+  });
+  io.on("connection", (socket) => {
+    socket.on("joinRoom", (userId) => {
+      user = userId;
+      console.log("=====");
+      console.log(user);
+      console.log("=====");
+      socket.join(userId);
+    });
+  });
+  const db = mongoose.connection;
+  db.once("open", async () => {
+    console.log("CRUD operation called");
+  });
+
+  httpServer.listen(port, () => {
+    console.log("Server running port ", port);
   });
 }
