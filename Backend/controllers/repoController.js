@@ -1,18 +1,23 @@
-const createRepository = (req, res) => {};
+import mongoose from "mongoose";
+import Repository from "../models/repoModel.js";
+import User from "../models/userModel.js";
+import Issue from "../models/issueModel.js";
 
-const getAllRepository = (req, res) => {};
+const createRepository = async (req, res) => {};
 
-const fetchRepositoryById = (req, res) => {};
+const getAllRepository = async (req, res) => {};
 
-const fetchRepositoryByName = (req, res) => {};
+const fetchRepositoryById = async (req, res) => {};
 
-const fetchRepositoryForCurrentUser = (req, res) => {};
+const fetchRepositoryByName = async (req, res) => {};
 
-const updateRepositoryById = (req, res) => {};
+const fetchRepositoryForCurrentUser = async (req, res) => {};
 
-const toggleVisibilityById = (req, res) => {};
+const updateRepositoryById = async (req, res) => {};
 
-const deleteRepositoryById = (req, res) => {};
+const toggleVisibilityById = async (req, res) => {};
+
+const deleteRepositoryById = async (req, res) => {};
 
 export {
   createRepository,

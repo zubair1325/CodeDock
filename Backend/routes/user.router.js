@@ -7,6 +7,7 @@ import {
   isUserAvailable,
   loginFormValidation,
   validateMongooseId,
+  encryptUserPassword,
 } from "../middleware/authMiddleware.js";
 import {
   getAllUsers,
@@ -22,15 +23,27 @@ userRouter.post(
   "/singUp",
   singUpFormValidation,
   isUserAvailable,
+  encryptUserPassword,
   wrapAsync(singUp),
 );
 userRouter.post("/login", loginFormValidation, wrapAsync(logIn));
+
 userRouter.get(
   "/userProfile/:id",
   validateMongooseId,
   wrapAsync(getUserProfile),
 );
-userRouter.put("/updateProfile/:id", updateUserProfile);
-userRouter.delete("/deleteProfile/:id", deleteUserProfile);
+userRouter.put(
+  "/updateProfile/:id",
+  validateMongooseId,
+  isUserAvailable,
+  encryptUserPassword,
+  wrapAsync(updateUserProfile),
+);
+userRouter.delete(
+  "/deleteProfile/:id",
+  loginFormValidation,
+  wrapAsync(deleteUserProfile),
+);
 
 export { userRouter };

@@ -2,7 +2,6 @@ import "dotenv/config";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 
-
 import User from "../models/userModel.js";
 import ExpressError from "../utils/ExpressError.js";
 
@@ -13,12 +12,10 @@ const getAllUsers = async (req, res) => {
 
 const singUp = async (req, res) => {
   const { username, password, email } = req.body;
-  const salt = await bcrypt.genSalt(10);
-  const hashedPassword = await bcrypt.hash(password, salt);
   const newUser = new User({
     username,
     email,
-    password: hashedPassword,
+    password,
     repositories: [],
     followedUsers: [],
     starRepos: [],
@@ -49,16 +46,40 @@ const logIn = async (req, res) => {
 };
 
 const getUserProfile = async (req, res) => {
+  const { id } = req.params;
   const currUser = await User.findById({ _id: id });
   if (!currUser) {
     return res.status(404).json({ message: "Account not found!" });
   }
-  res.json({ currUser });
+  res.json(currUser);
 };
 
-const updateUserProfile = (req, res) => {};
+const updateUserProfile = async (req, res) => {
+  const { id } = req.params;
+  const { email, password } = req.body;
+  let updateFields = { email };
+  if (password) {
+    updateFields.password = password;
+  }
+  const result = await User.findByIdAndUpdate(id, updateFields);
+  res.json(result);
+};
 
-const deleteUserProfile = (req, res) => {};
+const deleteUserProfile = async (req, res) => {
+  const { id } = req.params;
+  const { email, password } = req.body;
+  const currUser = await User.findById({ _id: id });
+  if (!currUser) {
+    return res.status(404).json({ message: "Account not Found" });
+  }
+  const isMatch = await bcrypt.compare(password, currUser.password);
+  if (currUser.email == email && isMatch) {
+    const deleteUser = await User.findByIdAndDelete(id);
+    console.log(deleteUser);
+    return res.json({ message: "Account deleted successfully" });
+  }
+  res.status(404).json({ message: "Provide valid credentials!" });
+};
 
 export {
   getAllUsers,
