@@ -41,7 +41,7 @@ const isUserAvailable = async (req, res, next) => {
 const validateMongooseId = (req, res, next) => {
   const { id } = req.params;
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    return res.status(404).json({ message: "Account not found!" });
+    return res.status(404).json({ error: "Account not found!" });
   }
   console.log("middleware working fine");
   next();

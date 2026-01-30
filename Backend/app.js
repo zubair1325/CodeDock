@@ -3,7 +3,7 @@ import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import http from "http";
-import bodyParser from "body-parser";
+// import bodyParser from "body-parser";
 import { Server } from "socket.io";
 
 import yargs from "yargs";
@@ -71,7 +71,7 @@ function startServer() {
   const app = express();
   const port = process.env.PORT || 3000;
 
-  app.use(bodyParser.json());
+  // app.use(bodyParser.json());
   app.use(express.json());
 
   main()

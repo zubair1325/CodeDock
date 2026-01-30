@@ -1,23 +1,60 @@
 import express from "express";
 const repoRouter = express.Router();
+
+import wrapAsync from "../utils/wrapAsync.js";
 import {
   createRepository,
   getAllRepository,
   fetchRepositoryById,
-  fetchRepositoryByName,
   fetchRepositoryForCurrentUser,
   updateRepositoryById,
   toggleVisibilityById,
   deleteRepositoryById,
 } from "../controllers/repoController.js";
 
-repoRouter.post("/repo/create", createRepository);
-repoRouter.get("/repo/all", getAllRepository);
-repoRouter.get("/repo/:id", fetchRepositoryById);
-repoRouter.get("/repo/:name", fetchRepositoryByName);
-repoRouter.get("/repo/:userId", fetchRepositoryForCurrentUser);
-repoRouter.put("/repo/update/:id", updateRepositoryById);
-repoRouter.patch("/repo/toggle/:id", toggleVisibilityById);
-repoRouter.delete("/repo/delete/:id", deleteRepositoryById);
+import {
+  validateRepoForm,
+  isRepositoryNameAvailable,
+  validateMongooseId,
+  isRepositoryExists,
+} from "../middleware/createRepoMiddleware.js";
+
+repoRouter.post(
+  "/repo/create",
+  validateRepoForm,
+  isRepositoryNameAvailable,
+  wrapAsync(createRepository),
+);
+repoRouter.get("/repo/all", wrapAsync(getAllRepository));
+repoRouter.get(
+  "/repo/:id",
+  validateMongooseId,
+  isRepositoryExists,
+  wrapAsync(fetchRepositoryById),
+);
+repoRouter.get(
+  "/repo/user/:userId",
+  validateMongooseId,
+  isUserAvailable,
+  wrapAsync(fetchRepositoryForCurrentUser),
+);
+repoRouter.put(
+  "/repo/update/:id",
+  validateMongooseId,
+  isRepositoryExists,
+  wrapAsync(updateRepositoryById),
+);
+repoRouter.patch(
+  "/repo/toggle/:id",
+  validateMongooseId,
+  isRepositoryExists,
+  wrapAsync(toggleVisibilityById),
+);
+repoRouter.delete(
+  "/repo/delete/:id",
+  validateMongooseId,
+  isRepositoryExists,
+  wrapAsync(deleteRepositoryById),
+);
 
 export { repoRouter };

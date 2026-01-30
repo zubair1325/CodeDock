@@ -4,7 +4,6 @@ const RepositorySchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    unique: true,
   },
   description: {
     type: String,
@@ -22,7 +21,7 @@ const RepositorySchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  issue: [
+  issues: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Issue",
